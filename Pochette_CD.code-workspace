@@ -4,5 +4,10 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"githubPullRequests.experimental.chat": false,
+		"githubPullRequests.fileAutoReveal": false,
+		"githubPullRequests.pullBranch": "never",
+		"githubPullRequests.webviewRefreshInterval": 3600
+	}
 }
