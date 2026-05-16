@@ -1,3 +1,7 @@
+@font-face {
+    font-family : Monoton;
+    src: url(fonts/Monoton-Regular.ttf);
+}
 .icon {
   display: inline-block;
   width: 2em;
@@ -10,9 +14,20 @@
 html, body {
   height: 100%;
 }
-
+h1 {
+    color: #31968e;
+	text-align: center;
+	font-size: 4em;
+	font-family: Monoton;
+}
 body {
   background: #A12810;
+  background-image: url("./Images/dfa-2.png");
+  background-repeat: no-repeat;
+  background-position: top;
+  /*background-image: url();*/
+  /*background-repeat: no-repeat;*/
+  /*background-position: top;*/
   position: relative;
 }
 
