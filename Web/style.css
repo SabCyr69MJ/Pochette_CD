@@ -22,9 +22,14 @@ h1 {
 }
 body {
   background: #A12810;
-  background-image: url("./Images/dfa-2.png");
+  background-image: url("./Images/Korea-Seoul-Cheonggyecheon-2008-01.jpg");
   background-repeat: no-repeat;
-  background-position: top;
+  background-position: center;
+  /*background-position: inherit;*/
+  /*background-position: initial;*/
+  /*background-position: revert;*/
+  /*background-position: revert-layer;*/
+  /*background-position: unset;*/
   /*background-image: url();*/
   /*background-repeat: no-repeat;*/
   /*background-position: top;*/
