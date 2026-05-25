@@ -19,3 +19,14 @@ Fichier pour la création de la pochette
     * Format EPS
     * Format PNG
     * Format PDF
+
+Fichier pour la création du CD
+* Matrice_CD_Laser_V1 plusieur format de fichier.
+    * Format AI
+    * Format DXF
+    * Format EPS
+    * Format PNG
+    * Format PDF 
+
+Utiliser le logiciel Illustrator ou un équivalent et mettre l'image a la taille voulue puis creer un masque d'écrêtage pour que l'image soit adapter a la forme.
+Imprimer le fichier puis le decouper afin de la coller sur la pochette et le CD.
