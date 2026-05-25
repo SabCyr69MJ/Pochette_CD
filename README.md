@@ -13,3 +13,9 @@ Liste des dossiers
 ### Matrice
 
 Fichier pour la création de la pochette
+* Matrice_CD_Impression_V1 plusieur format de fichier.
+    * Format AI
+    * Format DXF
+    * Format EPS
+    * Format PNG
+    * Format PDF

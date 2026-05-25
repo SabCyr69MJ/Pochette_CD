@@ -1,98 +1,261 @@
-$(document).ready(function () {
-    var audioElement = document.createElement('audio');
-    audioElement.setAttribute('src', $('.active-song').attr('data-src'));
+$(function () {
+  const playerTrack = $("#player-track");
+  const bgArtwork = $("#player-bg-artwork");
+  const albumName = $("#album-name");
+  const trackName = $("#track-name");
+  const albumArt = $("#album-art");
+  const sArea = $("#seek-bar-container");
+  const seekBar = $("#seek-bar");
+  const trackTime = $("#track-time");
+  const seekTime = $("#seek-time");
+  const sHover = $("#s-hover");
+  const playPauseButton = $("#play-pause-button");
+  const tProgress = $("#current-time");
+  const tTime = $("#track-length");
+  const playPreviousTrackButton = $("#play-previous");
+  const playNextTrackButton = $("#play-next");
+  const albums = [
+    "ENHYPEN ROMANCE UNTOLD Arcanum"
+  ];
+  /*Definition des noms des piste du CD*/
+  const trackNames = [
+  	"01. Moonstruck",
+    "02. XO (Only If You Say Yes)",
+    "03. Your Eyes Only",
+    "04. Hundred Broken Hearts",
+    "05. Brought the Heat Back",
+    "06. Paranormal",
+    "07. Royalty",
+    "08. Highway 1009 (narr ver.)",
+    "09. XO (Only If You Say Yes) (English ver.)"
+  ];
+  /*Definition du nombre de piste du CD*/
+  const albumArtworks = ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9"];
+  /*Definition des liens vers les pistes de lecture*/
+  const trackUrl = [
+    "../FLAC/01 Moonstruck.flac",
+    "../FLAC/02 XO (Only If You Say Yes).flac",
+    "../FLAC/03 Your Eyes Only.flac",
+    "../FLAC/04 Hundred Broken Hearts.flac",
+    "../FLAC/05 Brought the Heat Back.flac",
+    "../FLAC/06 Paranormal.flac",
+    "../FLAC/07 Royalty.flac",
+    "../FLAC/08 Highway 1009 (narr ver.).flac",
+    "../FLAC/09 XO (Only If You Say Yes) (English ver.).flac"
+  ];
 
-    var tl = new TimelineMax();
-    tl.to('.player__albumImg', 3, {
-        rotation: '360deg',
-        repeat: -1,
-        ease: Power0.easeNone
-    }, '-=0.2');
-    tl.pause();
+  let bgArtworkUrl,
+    i = playPauseButton.find("i"),
+    seekT,
+    seekLoc,
+    seekBarPos,
+    cM,
+    ctMinutes,
+    ctSeconds,
+    curMinutes,
+    curSeconds,
+    durMinutes,
+    durSeconds,
+    playProgress,
+    bTime,
+    nTime = 0,
+    buffInterval = null,
+    tFlag = false,
+    currIndex = -1;
 
-    $('.player__play').click(function () {
+  function playPause() {
+    setTimeout(function () {
+      if (audio.paused) {
+        playerTrack.addClass("active");
+        albumArt.addClass("active");
+        checkBuffering();
+        i.attr("class", "fas fa-pause");
+        audio.play();
+      } else {
+        playerTrack.removeClass("active");
+        albumArt.removeClass("active");
+        clearInterval(buffInterval);
+        albumArt.removeClass("buffering");
+        i.attr("class", "fas fa-play");
+        audio.pause();
+      }
+    }, 300);
+  }
 
-        if ($('.player').hasClass('play')) {
-            $('.player').removeClass('play');
-            audioElement.pause();
-            TweenMax.to('.player__albumImg', 0.2, {
-                scale: 1,
-                ease: Power0.easeNone
-            })
-            tl.pause();
-        } else {
-            $('.player').addClass('play');
-            audioElement.play();
-            TweenMax.to('.player__albumImg', 0.2, {
-                scale: 1.1,
-                ease: Power0.easeNone
-            })
-            tl.resume();
-        }
+  function showHover(event) {
+    seekBarPos = sArea.offset();
+    seekT = event.clientX - seekBarPos.left;
+    seekLoc = audio.duration * (seekT / sArea.outerWidth());
 
-    });
+    sHover.width(seekT);
 
+    cM = seekLoc / 60;
 
-    var playhead = document.getElementById("playhead");
-    audioElement.addEventListener("timeupdate", function () {
-        var duration = this.duration;
-        var currentTime = this.currentTime;
-        var percentage = (currentTime / duration) * 100;
-        playhead.style.width = percentage + '%';
-    });
+    ctMinutes = Math.floor(cM);
+    ctSeconds = Math.floor(seekLoc - ctMinutes * 60);
 
-    function updateInfo() {
-        $('.player__author').text($('.active-song').attr('data-author'));
-        $('.player__song').text($('.active-song').attr('data-song'));
+    if (ctMinutes < 0 || ctSeconds < 0) return;
+
+    if (ctMinutes < 0 || ctSeconds < 0) return;
+
+    if (ctMinutes < 10) ctMinutes = "0" + ctMinutes;
+    if (ctSeconds < 10) ctSeconds = "0" + ctSeconds;
+
+    if (isNaN(ctMinutes) || isNaN(ctSeconds)) seekTime.text("--:--");
+    else seekTime.text(ctMinutes + ":" + ctSeconds);
+
+    seekTime.css({ left: seekT, "margin-left": "-21px" }).fadeIn(0);
+  }
+
+  function hideHover() {
+    sHover.width(0);
+    seekTime
+      .text("00:00")
+      .css({ left: "0px", "margin-left": "0px" })
+      .fadeOut(0);
+  }
+
+  function playFromClickedPos() {
+    audio.currentTime = seekLoc;
+    seekBar.width(seekT);
+    hideHover();
+  }
+
+  function updateCurrTime() {
+    nTime = new Date();
+    nTime = nTime.getTime();
+
+    if (!tFlag) {
+      tFlag = true;
+      trackTime.addClass("active");
     }
-    updateInfo();
 
-    $('.player__next').click(function () {
-        if ($('.player .player__albumImg.active-song').is(':last-child')) {
-            $('.player__albumImg.active-song').removeClass('active-song');
-            $('.player .player__albumImg:first-child').addClass('active-song');
-            audioElement.addEventListener("timeupdate", function () {
-                var duration = this.duration;
-                var currentTime = this.currentTime;
-                var percentage = (currentTime / duration) * 100;
-                playhead.style.width = percentage + '%';
-            });
-        } else {
-            $('.player__albumImg.active-song').removeClass('active-song').next().addClass('active-song');
-            audioElement.addEventListener("timeupdate", function () {
-                var duration = this.duration;
-                var currentTime = this.currentTime;
-                var percentage = (currentTime / duration) * 100;
-                playhead.style.width = percentage + '%';
-            });
-        }
-        updateInfo();
-        audioElement.setAttribute('src', $('.active-song').attr('data-src'));
-        audioElement.play();
+    curMinutes = Math.floor(audio.currentTime / 60);
+    curSeconds = Math.floor(audio.currentTime - curMinutes * 60);
+
+    durMinutes = Math.floor(audio.duration / 60);
+    durSeconds = Math.floor(audio.duration - durMinutes * 60);
+
+    playProgress = (audio.currentTime / audio.duration) * 100;
+
+    if (curMinutes < 10) curMinutes = "0" + curMinutes;
+    if (curSeconds < 10) curSeconds = "0" + curSeconds;
+
+    if (durMinutes < 10) durMinutes = "0" + durMinutes;
+    if (durSeconds < 10) durSeconds = "0" + durSeconds;
+
+    if (isNaN(curMinutes) || isNaN(curSeconds)) tProgress.text("00:00");
+    else tProgress.text(curMinutes + ":" + curSeconds);
+
+    if (isNaN(durMinutes) || isNaN(durSeconds)) tTime.text("00:00");
+    else tTime.text(durMinutes + ":" + durSeconds);
+
+    if (
+      isNaN(curMinutes) ||
+      isNaN(curSeconds) ||
+      isNaN(durMinutes) ||
+      isNaN(durSeconds)
+    )
+      trackTime.removeClass("active");
+    else trackTime.addClass("active");
+
+    seekBar.width(playProgress + "%");
+
+    if (playProgress == 100) {
+      i.attr("class", "fa fa-play");
+      seekBar.width(0);
+      tProgress.text("00:00");
+      albumArt.removeClass("buffering").removeClass("active");
+      clearInterval(buffInterval);
+    }
+  }
+
+  function checkBuffering() {
+    clearInterval(buffInterval);
+    buffInterval = setInterval(function () {
+      if (nTime == 0 || bTime - nTime > 1000) albumArt.addClass("buffering");
+      else albumArt.removeClass("buffering");
+
+      bTime = new Date();
+      bTime = bTime.getTime();
+    }, 100);
+  }
+
+  function selectTrack(flag) {
+    if (flag == 0 || flag == 1) ++currIndex;
+    else --currIndex;
+
+    if (currIndex > -1 && currIndex < albumArtworks.length) {
+      if (flag == 0) i.attr("class", "fa fa-play");
+      else {
+        albumArt.removeClass("buffering");
+        i.attr("class", "fa fa-pause");
+      }
+
+      seekBar.width(0);
+      trackTime.removeClass("active");
+      tProgress.text("00:00");
+      tTime.text("00:00");
+
+      currAlbum = albums[currIndex];
+      currTrackName = trackNames[currIndex];
+      currArtwork = albumArtworks[currIndex];
+
+      audio.src = trackUrl[currIndex];
+
+      nTime = 0;
+      bTime = new Date();
+      bTime = bTime.getTime();
+
+      if (flag != 0) {
+        audio.play();
+        playerTrack.addClass("active");
+        albumArt.addClass("active");
+
+        clearInterval(buffInterval);
+        checkBuffering();
+      }
+
+      albumName.text(currAlbum);
+      trackName.text(currTrackName);
+      albumArt.find("img.active").removeClass("active");
+      $("#" + currArtwork).addClass("active");
+
+      bgArtworkUrl = $("#" + currArtwork).attr("src");
+
+      bgArtwork.css({ "background-image": "url(" + bgArtworkUrl + ")" });
+    } else {
+      if (flag == 0 || flag == 1) --currIndex;
+      else ++currIndex;
+    }
+  }
+
+  function initPlayer() {
+    audio = new Audio();
+
+    selectTrack(0);
+
+    audio.loop = false;
+
+    playPauseButton.on("click", playPause);
+
+    sArea.mousemove(function (event) {
+      showHover(event);
     });
 
-    $('.player__prev').click(function () {
-        if ($('.player .player__albumImg.active-song').is(':first-child')) {
-            $('.player__albumImg.active-song').removeClass('active-song');
-            $('.player .player__albumImg:last-child').addClass('active-song');
-            audioElement.addEventListener("timeupdate", function () {
-                var duration = this.duration;
-                var currentTime = this.currentTime;
-                var percentage = (currentTime / duration) * 100;
-                playhead.style.width = percentage + '%';
-            });
-        } else {
-            $('.player__albumImg.active-song').removeClass('active-song').prev().addClass('active-song');
-            audioElement.addEventListener("timeupdate", function () {
-                var duration = this.duration;
-                var currentTime = this.currentTime;
-                var percentage = (currentTime / duration) * 100;
-                playhead.style.width = percentage + '%';
-            });
-        }
-        updateInfo();
-        audioElement.setAttribute('src', $('.active-song').attr('data-src'));
-        audioElement.play();
-    });
+    sArea.mouseout(hideHover);
 
+    sArea.on("click", playFromClickedPos);
+
+    $(audio).on("timeupdate", updateCurrTime);
+
+    playPreviousTrackButton.on("click", function () {
+      selectTrack(-1);
+    });
+    playNextTrackButton.on("click", function () {
+      selectTrack(1);
+    });
+  }
+
+  initPlayer();
 });
