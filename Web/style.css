@@ -23,32 +23,14 @@ body {
   margin: 0;
   background-color: #ffeff5;
 }
-/*h1 {
-    color: #EB606D;
-	text-align: center;
-	font-size: 4em;
-	font-family: Enhypen;
-}*/
-/*#TexteTitre {color: #ff0004;
-	text-align: center;
-	font-size: 4em;
-	font-family: Enhypen;
-  /*z-index: 10;*//*Ici id pour le titre, a placer ou on veut dans le body, et a styliser dans le CSS*/
+
   .TexteTitre {color: #ff0004;
 	text-align: center;
 	font-size: 4em;
-  /*font-family: Helvetica Neue;*/
 	font-family: Enhypen;
+/}
 
-  /*z-index: 10;*/}
 
-/*.TexteTitre {
-    color: #bb0fa7;
-	text-align: center;
-	font-size: 4em;
-	font-family: Enhypen;
-  /*z-index: 10;*/
-/*}*/ /*Ici class pour le titre, a placer ou on veut dans le body, et a styliser dans le CSS*/
 #player-container {
   position: absolute;
   top: 50%;
